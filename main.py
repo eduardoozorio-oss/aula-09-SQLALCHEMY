@@ -97,3 +97,24 @@ def atualizar_filme():
         except Exception as erro:
             session.rollback()
             print(erro)
+
+
+
+def deletar_filme():
+    print("\n--- DELETAR FILME ---")
+
+    with Session() as session:
+        try:
+            id_filme = int(input("ID do filme: "))
+            filme = session.query(Filme).filter_by(id=id_filme).first()
+
+            if filme:
+                session.delete(filme)
+                session.commit()
+                print("Filme deletado!")
+            else:
+                print("Filme não encontrado")
+
+        except Exception as erro:
+            session.rollback()
+            print(erro)
