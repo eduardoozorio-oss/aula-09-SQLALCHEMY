@@ -76,4 +76,24 @@ def listar_filme():
             print(f"Ocorreu um erro: {erro}")
    
 
+def atualizar_filme():
+    print("\n--- ATUALIZAR FILME ---")
 
+    with Session() as session:
+        try:
+            id_filme = int(input("ID do filme: "))
+            filme = session.query(Filme).filter_by(id=id_filme).first()
+
+            if filme:
+                filme.titulo = input("Novo título: ")
+                filme.genero = input("Novo gênero: ")
+                filme.ano_lancamento = int(input("Novo ano: "))
+                filme.nota = float(input("Nova nota: "))
+                session.commit()
+                print("Filme atualizado!")
+            else:
+                print("Filme não encontrado")
+
+        except Exception as erro:
+            session.rollback()
+            print(erro)
