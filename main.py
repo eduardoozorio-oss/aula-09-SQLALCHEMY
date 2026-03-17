@@ -30,6 +30,7 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 
 
+
 # Criar funções CRUD
 def cadastrar_filme():
     print(f"\n--- CADASTRAR FILMES ---")
@@ -53,6 +54,7 @@ def cadastrar_filme():
         except Exception as erro:
             session.rollback()
             print(f"Ocorreu um erro {erro}")
+
    
 #Criar as funções listar, atualizar e deletar
 cadastrar_filme()
@@ -118,3 +120,34 @@ def deletar_filme():
         except Exception as erro:
             session.rollback()
             print(erro)
+
+
+# MENU
+while True:
+    print("\n--- MENU ---")
+    print("1 - Cadastrar Filme")
+    print("2 - Listar Filmes")
+    print("3 - Atualizar Filme")
+    print("4 - Deletar Filme")
+    print("5 - Sair")
+
+    opcao = input("Escolha: ")
+
+    if opcao == "1":
+        cadastrar_filme()
+
+    elif opcao == "2":
+        listar_filme()
+
+    elif opcao == "3":
+        atualizar_filme()
+
+    elif opcao == "4":
+        deletar_filme()
+
+    elif opcao == "5":
+        print("Saindo...")
+        break
+
+    else:
+        print("Opção inválida")
