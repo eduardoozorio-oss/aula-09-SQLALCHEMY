@@ -1,48 +1,79 @@
-from sqlalchemy import create_engine, Column, Integer,String, Float, Boolean
+
+from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-#criar a classe base do ORM 
-base = declarative_base()
+Base = declarative_base()
 
-class usuario(base):
-    #definir o nomeda tabela
-    __tablename__ = "usuario"
+#Filmes
+class Filme(Base):
+    __tablename__ = "filmes"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    titulo = Column(String(150), nullable=True)
+    genero = Column(String(100), nullable=True)
+    ano_lancamento = Column(Integer, nullable=True)
+    nota = Column(Float)
+    disponivel = Column(Boolean, default=True)
 
-    nome = Column(String(100), nullable=True)
+    def __init__(self, nome_filme, genero_filme, ano_filme, nota_filme, disponivel=True):
+        self.titulo = nome_filme
+        self.genero = genero_filme
+        self.ano_lancamento = ano_filme
+        self.nota = nota_filme
+        self.disponivel = disponivel
 
-    email = Column(String(100), nullable=True, unique=True)
-    idade = Column(Integer)
-    ativo = Column(Boolean, default=True)
-    salario = Column (Float)
+engine = create_engine("sqlite:///catalogo_filmes.db")
 
-    def __init__(self, nome, email, idade, salario):
-        self.nome = nome
-        self.email = email
-        self.idade = idade
-        self.salario = salario
-        
-
-
-engine = create_engine("sqlite:///empresa.db")
-
-base.metadata.create_all(engine)
-
+#Criar as tabelas
+Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
 
-with Session() as session:
-    try:
-        usuario_existente = session.query(usuario).filter_by(email="Eduardo@gmail.com").first()
-        if usuario_existente == None:
-            #criar um objeto
-            usuario1 = usuario("Eduardo","Eduardo@gmail.com", 33, 5000)
-            session.add(usuario1)
-            print("usuario cadastrado com sucesso")
-        else:
-            print("já existe um cadastro com esse e-mail")
-        
-    except Exception as erro:
-        session.rollback()
-        print(f"Ocorreu um erro {erro}")
+
+# Criar funções CRUD
+def cadastrar_filme():
+    print(f"\n--- CADASTRAR FILMES ---")
+    nome_filme = input("Digite o título do filme: ")
+    genero = input("Digite o gênero do filme: ")
+    ano = int(input("Digite o ano de lançamento do filme: "))
+    nota = float(input("Digite a nota do filme: "))
+
+    with Session() as session:
+        try:
+            #Verificar o titulo duplicado
+            buscar_filme = session.query(Filme).filter_by(titulo=nome_filme, ano_lancamento=ano).first()
+            if buscar_filme == None:
+                novo_filme = Filme(nome_filme, genero, ano, nota)
+                session.add(novo_filme)
+                session.commit()
+                print("Filme cadastrado com sucesso")
+            else:
+                print("Já existe um filme com esse título e ano")
+
+        except Exception as erro:
+            session.rollback()
+            print(f"Ocorreu um erro {erro}")
+   
+#Criar as funções listar, atualizar e deletar
+cadastrar_filme()
+
+
+
+def listar_filme():
+    print("\n--- LISTAR FILMES ---")
+
+    with Session() as session:
+        try:
+            buscar_filme = session.query(Filme).all()
+
+            if buscar_filme:
+                for filme in buscar_filme:
+                    print(f"id: {filme.id} - titulo: {filme.titulo} - genero: {filme.genero} - ano: {filme.ano_lancamento} - nota: {filme.nota}")
+            else:
+                print("Nenhum filme cadastrado.")
+
+        except Exception as erro:
+            print(f"Ocorreu um erro: {erro}")
+   
+
+
